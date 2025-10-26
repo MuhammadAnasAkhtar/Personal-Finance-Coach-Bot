@@ -1,4 +1,4 @@
-***💰Personal Finance Coach Bot***
+**💰Personal Finance Coach Bot**
 
 
 <div align="center">
@@ -185,13 +185,6 @@ if total_spent > 1000:
 - Increases savings for high spenders
 - Reduces discretionary spending categories
 
-## 📱 Screenshots
-
-*(Add your application screenshots here)*
-
-| Main Interface | Analysis Results |
-|----------------|------------------|
-| ![Main](https://via.placeholder.com/400x250/667eea/ffffff?text=Finance+Coach+UI) | ![Results](https://via.placeholder.com/400x250/764ba2/ffffff?text=AI+Analysis) |
 
 ## 🚀 Deployment
 
@@ -219,13 +212,6 @@ We welcome contributions! Please feel free to submit pull requests, report bugs,
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
-
-If you encounter any issues or have questions:
-
-1. Check the [Issues](https://github.com/yourusername/personal-finance-coach/issues) page
-2. Create a new issue with detailed description
-3. Contact: your-email@example.com
 
 ## 🙏 Acknowledgments
 
@@ -241,7 +227,6 @@ If you encounter any issues or have questions:
 
 *Made with ❤️ for better financial health*
 
-[![Open in GitHub](https://img.shields.io/badge/GitHub-Repository-black?style=for-the-badge&logo=github)](https://github.com/yourusername/personal-finance-coach)
 
 </div>
 ```
