@@ -1,4 +1,4 @@
-**💰Personal Finance Coach Bot**
+# 💰Personal Finance Coach Bot
 
 
 <div align="center">
