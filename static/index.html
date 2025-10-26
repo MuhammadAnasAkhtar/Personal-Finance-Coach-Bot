@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Finance Coach</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .transaction-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .transaction-form input, .transaction-form select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-secondary {
+            background: #764ba2;
+        }
+
+        .btn-secondary:hover {
+            background: #6a4190;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .transactions-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-amount {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .transaction-category {
+            background: #ecf0f1;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .alert {
+            border-left-color: #e74c3c;
+            background: #ffeaea;
+        }
+
+        .budget-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .budget-total {
+            font-weight: bold;
+            border-top: 2px solid #333;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        .recommendation {
+            background: #e8f4fd;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .total-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Personal Finance Coach</h1>
+            <p>Track your spending and get smart savings advice</p>
+        </div>
+
+        <div class="app-container">
+            <!-- Input Section -->
+            <div class="card">
+                <h2>Add Transactions</h2>
+                
+                <div class="transaction-form">
+                    <input type="text" id="description" placeholder="Description" />
+                    <input type="number" id="amount" placeholder="Amount" step="0.01" />
+                    <select id="category">
+                        <option value="groceries">Groceries</option>
+                        <option value="dining">Dining</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="transportation">Transportation</option>
+                        <option value="shopping">Shopping</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <button class="btn" onclick="addTransaction()">Add</button>
+                </div>
+
+                <div class="actions">
+                    <button class="btn" onclick="analyzeFinances()">Analyze Finances</button>
+                    <button class="btn btn-secondary" onclick="loadSampleData()">Load Sample Data</button>
+                    <button class="btn btn-danger" onclick="clearTransactions()">Clear All</button>
+                </div>
+
+                <h3 style="margin-top: 20px;">Your Transactions</h3>
+                <div class="transactions-list" id="transactionsList">
+                    <div style="text-align: center; color: #7f8c8d; padding: 20px;">
+                        No transactions added yet
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="card">
+                <h2>Financial Analysis</h2>
+                <div id="loading" class="loading hidden">
+                    <p>🔍 Analyzing your finances...</p>
+                </div>
+                <div id="results">
+                    <div style="text-align: center; color: #7f8c8d; padding: 40px;">
+                        Add transactions and click "Analyze Finances" to see your financial insights
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let transactions = [];
+
+        function addTransaction() {
+            const description = document.getElementById('description').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const category = document.getElementById('category').value;
+
+            if (!description || !amount || amount <= 0) {
+                alert('Please fill in all fields with valid values');
+                return;
+            }
+
+            transactions.push({ description, amount, category });
+            updateTransactionsList();
+            
+            // Clear form
+            document.getElementById('description').value = '';
+            document.getElementById('amount').value = '';
+            document.getElementById('description').focus();
+        }
+
+        function updateTransactionsList() {
+            const list = document.getElementById('transactionsList');
+            
+            if (transactions.length === 0) {
+                list.innerHTML = '<div style="text-align: center; color: #7f8c8d; padding: 20px;">No transactions added yet</div>';
+                return;
+            }
+
+            list.innerHTML = '';
+            let total = 0;
+
+            transactions.forEach((transaction, index) => {
+                total += transaction.amount;
+                const item = document.createElement('div');
+                item.className = 'transaction-item';
+                item.innerHTML = `
+                    <div class="transaction-info">
+                        <strong>${transaction.description}</strong>
+                        <div class="transaction-category">${transaction.category}</div>
+                    </div>
+                    <div>
+                        <span class="transaction-amount">$${transaction.amount.toFixed(2)}</span>
+                        <button class="delete-btn" onclick="removeTransaction(${index})">×</button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+
+            // Add total
+            const totalItem = document.createElement('div');
+            totalItem.className = 'transaction-item';
+            totalItem.style.fontWeight = 'bold';
+            totalItem.style.borderTop = '2px solid #333';
+            totalItem.style.marginTop = '10px';
+            totalItem.innerHTML = `
+                <div>Total:</div>
+                <div class="transaction-amount">$${total.toFixed(2)}</div>
+            `;
+            list.appendChild(totalItem);
+        }
+
+        function removeTransaction(index) {
+            transactions.splice(index, 1);
+            updateTransactionsList();
+        }
+
+        function clearTransactions() {
+            if (transactions.length === 0) return;
+            
+            if (confirm('Are you sure you want to clear all transactions?')) {
+                transactions = [];
+                updateTransactionsList();
+                clearResults();
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = `
+                <div style="text-align: center; color: #7f8c8d; padding: 40px;">
+                    Add transactions and click "Analyze Finances" to see your financial insights
+                </div>
+            `;
+        }
+
+        async function analyzeFinances() {
+            if (transactions.length === 0) {
+                alert('Please add some transactions first');
+                return;
+            }
+
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            
+            loading.classList.remove('hidden');
+            results.innerHTML = '';
+
+            try {
+                const response = await fetch('/api/analyze-finances', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ transactions })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayResults(data);
+
+            } catch (error) {
+                console.error('Error:', error);
+                results.innerHTML = `
+                    <div class="result-card alert">
+                        <h3>Error</h3>
+                        <p>Failed to analyze finances: ${error.message}</p>
+                        <p>Make sure the backend server is running on port 8000.</p>
+                    </div>
+                `;
+            } finally {
+                loading.classList.add('hidden');
+            }
+        }
+
+        async function loadSampleData() {
+            try {
+                const response = await fetch('/api/sample-transactions');
+                const data = await response.json();
+                transactions = data.transactions;
+                updateTransactionsList();
+                
+                // Auto-analyze after loading sample data
+                setTimeout(analyzeFinances, 500);
+                
+            } catch (error) {
+                console.error('Error loading sample data:', error);
+                // Fallback sample data
+                transactions = [
+                    {"description": "Grocery Store", "amount": 85, "category": "groceries"},
+                    {"description": "Restaurant", "amount": 65, "category": "dining"},
+                    {"description": "Movie Tickets", "amount": 40, "category": "entertainment"},
+                    {"description": "Gas Station", "amount": 55, "category": "transportation"},
+                    {"description": "Online Shopping", "amount": 120, "category": "shopping"}
+                ];
+                updateTransactionsList();
+                setTimeout(analyzeFinances, 500);
+            }
+        }
+
+        function displayResults(data) {
+            const results = document.getElementById('results');
+            results.innerHTML = '';
+
+            // Total spent
+            const totalCard = document.createElement('div');
+            totalCard.className = 'result-card';
+            totalCard.innerHTML = `
+                <h3>💰 Total Spent</h3>
+                <div class="total-display">$${data.total_spent.toFixed(2)}</div>
+            `;
+            results.appendChild(totalCard);
+
+            // Spending breakdown
+            const breakdownCard = document.createElement('div');
+            breakdownCard.className = 'result-card';
+            breakdownCard.innerHTML = '<h3>📊 Spending Breakdown</h3>';
+            
+            const breakdown = data.spending_patterns.category_breakdown;
+            for (const [category, amount] of Object.entries(breakdown)) {
+                const item = document.createElement('div');
+                item.className = 'budget-item';
+                item.innerHTML = `
+                    <span>${category.charAt(0).toUpperCase() + category.slice(1)}:</span>
+                    <span>$${amount.toFixed(2)}</span>
+                `;
+                breakdownCard.appendChild(item);
+            }
+            
+            const highestSpending = document.createElement('div');
+            highestSpending.className = 'budget-item budget-total';
+            highestSpending.innerHTML = `
+                <span>Highest Spending:</span>
+                <span>${data.spending_patterns.highest_spending}</span>
+            `;
+            breakdownCard.appendChild(highestSpending);
+            
+            results.appendChild(breakdownCard);
+
+            // Recommendations
+            if (data.savings_recommendations.length > 0) {
+                const recCard = document.createElement('div');
+                recCard.className = 'result-card';
+                recCard.innerHTML = '<h3>💡 Savings Recommendations</h3>';
+                
+                data.savings_recommendations.forEach(rec => {
+                    const recElement = document.createElement('div');
+                    recElement.className = 'recommendation';
+                    recElement.textContent = rec;
+                    recCard.appendChild(recElement);
+                });
+                results.appendChild(recCard);
+            }
+
+            // Weekly budget
+            const budgetCard = document.createElement('div');
+            budgetCard.className = 'result-card';
+            budgetCard.innerHTML = '<h3>📅 Recommended Weekly Budget</h3>';
+            
+            const budget = data.weekly_budget;
+            for (const [category, amount] of Object.entries(budget)) {
+                if (category !== 'total_weekly') {
+                    const item = document.createElement('div');
+                    item.className = 'budget-item';
+                    item.innerHTML = `
+                        <span>${category.charAt(0).toUpperCase() + category.slice(1)}:</span>
+                        <span>$${amount}</span>
+                    `;
+                    budgetCard.appendChild(item);
+                }
+            }
+            
+            const totalBudget = document.createElement('div');
+            totalBudget.className = 'budget-item budget-total';
+            totalBudget.innerHTML = `
+                <span>Total Weekly Budget:</span>
+                <span>$${budget.total_weekly}</span>
+            `;
+            budgetCard.appendChild(totalBudget);
+            
+            results.appendChild(budgetCard);
+
+            // Alerts
+            if (data.alerts && data.alerts.length > 0) {
+                const alertsCard = document.createElement('div');
+                alertsCard.className = 'result-card alert';
+                alertsCard.innerHTML = '<h3>🚨 Important Alerts</h3>';
+                
+                data.alerts.forEach(alert => {
+                    const alertElement = document.createElement('div');
+                    alertElement.className = 'recommendation';
+                    alertElement.style.background = '#ffeaea';
+                    alertElement.textContent = alert;
+                    alertsCard.appendChild(alertElement);
+                });
+                results.appendChild(alertsCard);
+            }
+        }
+
+        // Enter key support for adding transactions
+        document.getElementById('amount').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTransaction();
+            }
+        });
+
+        // Initialize
+        updateTransactionsList();
+    </script>
+</body>
+</html>
